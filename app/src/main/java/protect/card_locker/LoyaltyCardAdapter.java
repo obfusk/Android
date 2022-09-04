@@ -38,7 +38,7 @@ import androidx.core.graphics.BlendModeCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import protect.card_locker.preferences.Settings;
 
-public class LoyaltyCardAdapter extends RecyclerView.Adapter<LoyaltyCardAdapter.LoyaltyCardListItemViewHolder> {
+public class LoyaltyCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private LoyaltyCard[] mLoyaltyCards;
 
     private int mCurrentSelectedIndex = -1;
@@ -140,14 +140,18 @@ public class LoyaltyCardAdapter extends RecyclerView.Adapter<LoyaltyCardAdapter.
     }
 
     @Override
-    public LoyaltyCardListItemViewHolder onCreateViewHolder(ViewGroup inputParent, int inputViewType) {
-        View itemView;
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup inputParent, int inputViewType) {
         if (inputViewType == VIEW_TYPES.ArchiveReference) {
-            itemView = LayoutInflater.from(inputParent.getContext()).inflate(R.layout.loyalty_card_layout, inputParent, false);
+            return new LoyaltyCardListArchiveReferenceViewHolder(
+                    LayoutInflater.from(inputParent.getContext()).inflate(R.layout.loyalty_card_view_archive_link, inputParent, false),
+                    mListener
+            );
         } else {
-            itemView = LayoutInflater.from(inputParent.getContext()).inflate(R.layout.loyalty_card_layout, inputParent, false);
+            return new LoyaltyCardListItemViewHolder(
+                    LayoutInflater.from(inputParent.getContext()).inflate(R.layout.loyalty_card_layout, inputParent, false),
+                    mListener
+            );
         }
-        return new LoyaltyCardListItemViewHolder(itemView, mListener);
     }
 
     public LoyaltyCard getCard(int position) {
@@ -181,6 +185,11 @@ public class LoyaltyCardAdapter extends RecyclerView.Adapter<LoyaltyCardAdapter.
     }
 
     private void bindCardViewHolder(LoyaltyCardListItemViewHolder inputHolder, int position) {
+        // Invisible until we want to show something more
+        inputHolder.mDivider.setVisibility(View.GONE);
+
+        setHeaderHeight(inputHolder, mShowDetails);
+
         LoyaltyCard loyaltyCard = getCard(position);
 
         inputHolder.setStoreField(loyaltyCard.store);
@@ -216,13 +225,25 @@ public class LoyaltyCardAdapter extends RecyclerView.Adapter<LoyaltyCardAdapter.
         inputHolder.toggleCardStateIcon(loyaltyCard.starStatus != 0, loyaltyCard.archiveStatus != 0, itemSelected(position));
 
         inputHolder.itemView.setActivated(mSelectedItems.get(position, false));
+
+        applyIconAnimation(inputHolder, position);
+        applyClickEvents(inputHolder, position);
+
+        // Force redraw to fix size not shrinking after data change
+        inputHolder.mRow.requestLayout();
+    }
+
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (getItemViewType(position) == VIEW_TYPES.ArchiveReference) {
+            LoyaltyCardListArchiveReferenceViewHolder inputHolder = (LoyaltyCardListArchiveReferenceViewHolder) holder;
+            inputHolder.setText(mContext.getResources().getQuantityString(R.plurals.viewArchivedCardsWithCount, mArchiveCount, mArchiveCount));
+        } else {
+            bindCardViewHolder((LoyaltyCardListItemViewHolder) holder, position);
+        }
     }
 
     public void onBindViewHolder(@NonNull LoyaltyCardListItemViewHolder inputHolder, int position) {
-        // Invisible until we want to show something more
-        inputHolder.mDivider.setVisibility(View.GONE);
 
-        setHeaderHeight(inputHolder, mShowDetails);
 
         if (getItemViewType(position) == VIEW_TYPES.ArchiveReference) {
             inputHolder.setStoreField(mContext.getString(R.string.openArchiveList));
@@ -243,11 +264,6 @@ public class LoyaltyCardAdapter extends RecyclerView.Adapter<LoyaltyCardAdapter.
             bindCardViewHolder(inputHolder, position);
         }
 
-        applyIconAnimation(inputHolder, position);
-        applyClickEvents(inputHolder, position);
-
-        // Force redraw to fix size not shrinking after data change
-        inputHolder.mRow.requestLayout();
     }
 
     private void setHeaderHeight(LoyaltyCardListItemViewHolder inputHolder, boolean expanded) {
@@ -485,6 +501,24 @@ public class LoyaltyCardAdapter extends RecyclerView.Adapter<LoyaltyCardAdapter.
         public void setIconBackgroundColor(int color) {
             mIconBackgroundColor = color;
             mCardIcon.setBackgroundColor(color);
+        }
+    }
+
+    public class LoyaltyCardListArchiveReferenceViewHolder extends RecyclerView.ViewHolder {
+
+        public TextView mText;
+        protected LoyaltyCardListArchiveReferenceViewHolder(View inputView, CardAdapterListener inputListener) {
+            super(inputView);
+            mText = inputView.findViewById(R.id.text);
+            inputView.setOnLongClickListener(view -> {
+                inputListener.onRowClicked(getAdapterPosition());
+                inputView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+                return true;
+            });
+        }
+
+        public void setText(String text) {
+            mText.setText(text);
         }
     }
 

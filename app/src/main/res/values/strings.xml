@@ -292,8 +292,8 @@
         <item quantity="other"><xliff:g>%1$d</xliff:g> cards (<xliff:g id="archivedCount">%2$d</xliff:g> archived)</item>
     </plurals>
     <plurals name="viewArchivedCardsWithCount">
-        <item quantity="one">View <xliff:g>%1$d</xliff:g> archived card</item>
-        <item quantity="other">View <xliff:g>%1$d</xliff:g> archived cards</item>
+        <item quantity="one">View archive (<xliff:g>%1$d</xliff:g> card)</item>
+        <item quantity="other">View archive (<xliff:g>%1$d</xliff:g> cards)</item>
     </plurals>
     <string name="previousCard">Previous</string>
     <string name="nextCard">Next</string>
