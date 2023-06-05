@@ -6,6 +6,7 @@ on:
       - main
       - staging
       - trying
+      - wip
   pull_request:
     branches:
       - main
