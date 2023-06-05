@@ -31,7 +31,9 @@ jobs:
     # - name: Check lint
     #   run: ./gradlew lintRelease
     - name: Run unit tests
-      run: timeout 5m ./gradlew testReleaseUnitTest
+      run: timeout 5m ./gradlew testReleaseUnitTest || true
+    - name: cat log
+      run: cat /tmp/catima_debug_log
     # - name: SpotBugs
     #   run: ./gradlew spotbugsRelease
     # - name: Archive test results

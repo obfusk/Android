@@ -51,6 +51,7 @@ import org.robolectric.shadows.ShadowLog;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.time.Instant;
@@ -504,28 +505,46 @@ public class LoyaltyCardViewActivityTest {
 
     @Test
     public void startWithoutParametersCaptureBarcodeCreateLoyaltyCard() throws IOException, ParseException {
+        Files.write(Paths.get("/tmp/catima_debug_log"), "1\n".getBytes());
+
         registerMediaStoreIntentHandler();
+
+        Files.write(Paths.get("/tmp/catima_debug_log"), "2\n".getBytes(), StandardOpenOption.APPEND);
 
         ActivityController activityController = Robolectric.buildActivity(LoyaltyCardEditActivity.class).create();
         activityController.start();
         activityController.visible();
         activityController.resume();
 
+        Files.write(Paths.get("/tmp/catima_debug_log"), "3\n".getBytes(), StandardOpenOption.APPEND);
+
         Activity activity = (Activity) activityController.get();
         final Context context = activity.getApplicationContext();
 
+        Files.write(Paths.get("/tmp/catima_debug_log"), "4\n".getBytes(), StandardOpenOption.APPEND);
+
         checkAllFields(activity, ViewMode.ADD_CARD, "", "", context.getString(R.string.anyDate), context.getString(R.string.never), "0", context.getString(R.string.points), "", context.getString(R.string.sameAsCardId), context.getString(R.string.noBarcode), null, null);
+
+        Files.write(Paths.get("/tmp/catima_debug_log"), "5\n".getBytes(), StandardOpenOption.APPEND);
 
         // Complete barcode capture successfully
         captureBarcodeWithResult(activity, true);
         activityController.resume();
 
+        Files.write(Paths.get("/tmp/catima_debug_log"), "6\n".getBytes(), StandardOpenOption.APPEND);
+
         checkAllFields(activity, ViewMode.ADD_CARD, "", "", context.getString(R.string.anyDate), context.getString(R.string.never), "0", context.getString(R.string.points), BARCODE_DATA, context.getString(R.string.sameAsCardId), BARCODE_TYPE.prettyName(), null, null);
+
+        Files.write(Paths.get("/tmp/catima_debug_log"), "7\n".getBytes(), StandardOpenOption.APPEND);
 
         shadowOf(getMainLooper()).idle();
 
+        Files.write(Paths.get("/tmp/catima_debug_log"), "8\n".getBytes(), StandardOpenOption.APPEND);
+
         // Save and check the loyalty card
         saveLoyaltyCardWithArguments(activity, "store", "note", context.getString(R.string.anyDate), context.getString(R.string.never), new BigDecimal("0"), context.getString(R.string.points), BARCODE_DATA, context.getString(R.string.sameAsCardId), BARCODE_TYPE.name(), true);
+
+        Files.write(Paths.get("/tmp/catima_debug_log"), "9\n".getBytes(), StandardOpenOption.APPEND);
     }
 
     @Test
