@@ -512,8 +512,11 @@ public class LoyaltyCardViewActivityTest {
         Files.write(Paths.get("/tmp/catima_debug_log"), "2\n".getBytes(), StandardOpenOption.APPEND);
 
         ActivityController activityController = Robolectric.buildActivity(LoyaltyCardEditActivity.class).create();
+        Files.write(Paths.get("/tmp/catima_debug_log"), "2a\n".getBytes(), StandardOpenOption.APPEND);
         activityController.start();
+        Files.write(Paths.get("/tmp/catima_debug_log"), "2b\n".getBytes(), StandardOpenOption.APPEND);
         activityController.visible();
+        Files.write(Paths.get("/tmp/catima_debug_log"), "2c\n".getBytes(), StandardOpenOption.APPEND);
         activityController.resume();
 
         Files.write(Paths.get("/tmp/catima_debug_log"), "3\n".getBytes(), StandardOpenOption.APPEND);
