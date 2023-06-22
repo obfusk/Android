@@ -66,10 +66,7 @@ public class CatimaBarcode {
     }
 
     public boolean isSquare() {
-        return mBarcodeFormat == BarcodeFormat.AZTEC
-                || mBarcodeFormat == BarcodeFormat.DATA_MATRIX
-                || mBarcodeFormat == BarcodeFormat.MAXICODE
-                || mBarcodeFormat == BarcodeFormat.QR_CODE;
+        return mBarcodeFormat == BarcodeFormat.AZTEC || mBarcodeFormat == BarcodeFormat.QR_CODE;
     }
 
     public boolean hasInternalPadding() {
