@@ -57,10 +57,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Currency;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -510,25 +512,27 @@ public class Utils {
         res.updateConfiguration(configuration, res.getDisplayMetrics());
     }
 
-    public static boolean localeEqualsAfterAdjust(Locale appLocale, Locale systemLocale) {
-        boolean appLocaleHasCountry = !appLocale.getCountry().isEmpty();
-        boolean systemLocaleHasCountry = !systemLocale.getCountry().isEmpty();
-        boolean appLocaleHasScript = !appLocale.getScript().isEmpty();
-        boolean systemLocaleHasScript = !systemLocale.getScript().isEmpty();
-        //app locale: zh-CN, system locale: zh-Hans-CN
-        if (!appLocaleHasScript && systemLocaleHasScript) {
-            if (appLocaleHasCountry && systemLocaleHasCountry) {
-                return appLocale.getLanguage().equals(systemLocale.getLanguage()) &&
-                        appLocale.getCountry().equals(systemLocale.getCountry());
-            } else {
-                return appLocale.getLanguage().equals(systemLocale.getLanguage());
-            }
-        } //app locale: es, system locale: es-ES
-        else if (!appLocaleHasCountry && systemLocaleHasCountry) {
-            return appLocale.getLanguage().equals(systemLocale.getLanguage());
-        } else {
-            return appLocale.equals(systemLocale);
+    public static int localeEqualsAfterAdjust(Locale appLocale, Locale sysLocale) {
+        List<String> appLocaleAdjusted = new ArrayList<>();
+        List<String> sysLocaleAdjusted = new ArrayList<>();
+        appLocaleAdjusted.add(appLocale.getLanguage());
+        sysLocaleAdjusted.add(sysLocale.getLanguage());
+        if (!appLocale.getCountry().isEmpty() && !sysLocale.getCountry().isEmpty()) {
+            appLocaleAdjusted.add(appLocale.getCountry());
+            sysLocaleAdjusted.add(sysLocale.getCountry());
         }
+        if (!appLocale.getVariant().isEmpty() && !sysLocale.getVariant().isEmpty()) {
+            appLocaleAdjusted.add(appLocale.getVariant());
+            sysLocaleAdjusted.add(sysLocale.getVariant());
+        }
+        if (!appLocale.getScript().isEmpty() && !sysLocale.getScript().isEmpty()) {
+            appLocaleAdjusted.add(appLocale.getScript());
+            sysLocaleAdjusted.add(sysLocale.getScript());
+        }
+        if (appLocaleAdjusted.equals(sysLocaleAdjusted)) {
+            return appLocaleAdjusted.size();
+        }
+        return 0;
     }
 
     static public long getUnixTime() {
