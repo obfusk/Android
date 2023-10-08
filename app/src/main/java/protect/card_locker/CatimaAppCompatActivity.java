@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,18 +31,21 @@ public class CatimaAppCompatActivity extends AppCompatActivity {
         super.onPostCreate(savedInstanceState);
         // material 3 designer does not consider status bar colors
         // XXX changing this in onCreate causes issues with the splash screen activity, so doing this here
-        boolean darkMode = Utils.isDarkModeEnabled(this);
-        if (Build.VERSION.SDK_INT >= 23) {
-            View decorView = getWindow().getDecorView();
-            WindowInsetsControllerCompat wic = new WindowInsetsControllerCompat(getWindow(), decorView);
-            wic.setAppearanceLightStatusBars(!darkMode);
-            getWindow().setStatusBarColor(Color.TRANSPARENT);
-        } else {
-            // icons are always white back then
-            getWindow().setStatusBarColor(darkMode ? Color.TRANSPARENT : Color.argb(127, 0, 0, 0));
+        Window window = getWindow();
+        if (window != null) {
+            boolean darkMode = Utils.isDarkModeEnabled(this);
+            if (Build.VERSION.SDK_INT >= 23) {
+                View decorView = window.getDecorView();
+                WindowInsetsControllerCompat wic = new WindowInsetsControllerCompat(window, decorView);
+                wic.setAppearanceLightStatusBars(!darkMode);
+                window.setStatusBarColor(Color.TRANSPARENT);
+            } else {
+                // icons are always white back then
+                window.setStatusBarColor(darkMode ? Color.TRANSPARENT : Color.argb(127, 0, 0, 0));
+            }
         }
         // XXX android 9 and below has a nasty rendering bug if the theme was patched earlier
-        Utils.postPatchColors(this);
+        Utils.postPatchColors(this, shouldSetNavColor());
     }
 
     protected void enableToolbarBackButton() {
@@ -52,5 +56,11 @@ public class CatimaAppCompatActivity extends AppCompatActivity {
     }
 
     public void onMockedRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    }
+
+    protected boolean shouldSetNavColor() {
+        // The fact that onPostCreate usually runs before onResume is not actually guaranteed.
+        // Thus e.g. LoyaltyCardViewActivity sets the colour in onResume() instead and overrides this to return false so it doesn't get set twice.
+        return true;
     }
 }
